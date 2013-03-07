@@ -462,13 +462,14 @@ describe 'Model.ref', ->
 
   it 'overwritten ref listeners should cleanup after a mutator event', ->
     model = new Model
-    num = model.listeners('mutator').length
     model.ref '_color', 'colors.green'
-    expect(model.listeners('mutator').length).to.equal num + 1
+    expect(model._pathEvents.self.mutator['colors.green'].length).to.equal 1
     model.ref '_color', 'colors.green'
-    expect(model.listeners('mutator').length).to.equal num + 2
+    expect(model._pathEvents.self.mutator['colors.green'].length).to.equal 2
     model.set 'colors.green.hex', '#0f0'
-    expect(model.listeners('mutator').length).to.equal num + 1
+    expect(model._pathEvents.self.mutator['colors.green'].length).to.equal 1
+    model.del '_color'
+    expect(model._pathEvents.self.mutator['colors.green']).to.equal undefined
 
   it 'supports specifying from path via scoped model', ->
     model = new Model
