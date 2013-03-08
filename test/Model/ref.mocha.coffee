@@ -468,7 +468,9 @@ describe 'Model.ref', ->
     expect(model._pathEvents.self.mutator['colors.green'].length).to.equal 2
     model.set 'colors.green.hex', '#0f0'
     expect(model._pathEvents.self.mutator['colors.green'].length).to.equal 1
+
     model.del '_color'
+    model.set 'colors.green.hex', '#0f0'
     expect(model._pathEvents.self.mutator['colors.green']).to.equal undefined
 
   it 'supports specifying from path via scoped model', ->
