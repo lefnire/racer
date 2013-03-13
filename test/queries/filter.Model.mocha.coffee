@@ -186,7 +186,7 @@ describe 'In browser filters', ->
         expect(computation1.get()).to.eql []
         expect(computation2.get()).to.eql []
 
-        model.emit 'cleanup'
+        model.emit 'cleanup', true
         expect(computation1.get()).to.equal undefined
         expect(computation2.get()).to.equal undefined
 
@@ -204,7 +204,7 @@ describe 'In browser filters', ->
         model.ref '_query', computation2
         expect(model.get('_query')).to.equal 1
 
-        model.emit 'cleanup'
+        model.emit 'cleanup', true
         expect(computation1.get()).to.eql [user]
         expect(computation2.get()).to.equal 1
 
