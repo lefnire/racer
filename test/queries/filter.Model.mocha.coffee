@@ -177,6 +177,37 @@ describe 'In browser filters', ->
 
             model.set 'users.1.age', 32
 
+      it 'should self-destruct on cleanup if not referenced', ->
+        model = new Model
+        computation1 = model.at('users').filter
+          where:
+            age: {gt: 20}
+        computation2 = computation1.filter (user) -> user.age < 40
+        expect(computation1.get()).to.eql []
+        expect(computation2.get()).to.eql []
+
+        model.emit 'cleanup', true
+        expect(computation1.get()).to.equal undefined
+        expect(computation2.get()).to.equal undefined
+
+      it 'should not self-destruct on cleanup if referenced', ->
+        model = new Model
+        model.set 'users.0', user = id: '0', age: 30
+        model.set 'users.1', id: '1', age: 20
+        computation1 = model.at('users').filter
+          where:
+            age: {gt: 20}
+        computation2 = model.filter(computation1).where(age: {lt: 40}).count()
+        expect(computation1.get()).to.eql [user]
+        expect(computation2.get()).to.equal 1
+
+        model.ref '_query', computation2
+        expect(model.get('_query')).to.equal 1
+
+        model.emit 'cleanup', true
+        expect(computation1.get()).to.eql [user]
+        expect(computation2.get()).to.equal 1
+
 #      describe 'with sort descriptors', ->
 #        # TODO Add all similar tests from "without sort descriptors"
 #        it 'should return a scoped model with access to results', ->
