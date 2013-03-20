@@ -91,6 +91,20 @@ describe 'filter', ->
         filter = filterFnFromQuery
             from: 'stuff'
             like: { name: '%b%' }
+  describe 'regexp', ->
+    it 'should work with regex literals', ->
+        doc = 
+          name: 'ABC'
+        filter = filterFnFromQuery
+            from: 'stuff'
+            regexp: { name: /abc/i }
+        expect(filter doc).to.be.ok()
+    it 'should work with strings', ->
+        doc = 
+          name: 'ABC'
+        filter = filterFnFromQuery
+            from: 'stuff'
+            regexp: { name: "B" }
         expect(filter doc).to.be.ok()
 
   describe 'multiple equals', ->
