@@ -108,6 +108,8 @@ Keys in refLists can now contain `.` characters to traverse object paths.
 
 
 ##Bug fixes
+ - If you overwrite an object that contains an array used by a query, the query will now update.
+
  - Don't crash if certain callbacks are missing  
 I don't think I caught all cases of this yet; if you see "cannot invoke undefined" errors, let me know which callbacks I forgot to make optional
 
