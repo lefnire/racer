@@ -2,9 +2,12 @@
 
 This is a fork of [codeparty/racer](https://github.com/codeparty/racer) maintained by [SLaks](http://slaks.net) to add features and bugfixes.
 
-Racer is a real-time model synchronization engine for Node.js. It enables multiple users to interact with the same data objects via sophisticated conflict detection and resolution algorithms. At the same time, it provides a simple object accessor and event interface for writing application logic.
+ > Racer is a real-time model synchronization engine for Node.js. It enables multiple users to interact with the same data objects via sophisticated conflict detection and resolution algorithms. At the same time, it provides a simple object accessor and event interface for writing application logic.
 
 Racer does not have documentation.  For basic information, see the stock Derby documentation at http://derbyjs.com/#models
+
+Issues and pull requests welcome.  
+For support, see the [Google Group](https://groups.google.com/forum/?fromgroups#!forum/derbyjs).
 
 
 [![Build
@@ -88,8 +91,8 @@ This event is used to determine whether a query has active references.
 
  - Add `model.onPath(type, path, listener)`  
 Adds a model listener to a subset of model paths.  This function stores listeners in separate arrays for each path. This means that the listener isn't called at all for other paths, saving loop time.   
-`event` can be `mutator`, `beforeTxn`, `ping`, or any specific mutation events.  Other events probably won't work, since it won't be able to extract the path that the event was raised on.
-The `path` argument can optionally end in .* to only handle events on descendant path, or .? to only handle events on direct children.
+`event` can be `mutator`, `beforeTxn`, `ping`, or any specific mutation events.  Other events probably won't work, since it won't be able to extract the path that the event was raised on.  
+The `path` argument can optionally end in .* to only handle events on descendant path, or .? to only handle events on direct children.  
 Like my `model.on()`, this returns an object with a `cleanup()` method that removes the listener.  **This method is the only way to remove `onPath()` listeners**.
 
  - `count()` queries now update live when the model changes  (see [#91](https://github.com/codeparty/racer/issues/91S))  
