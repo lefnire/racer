@@ -84,6 +84,44 @@ describe 'In browser filters', ->
             model.set 'users.2.age', 19
             expect(results.get()).to.specEql [{id: '1', age: 31}]
 
+          it 'should return a scoped model whose results update correctly when the parent object is replaced', ->
+            model =  new Model
+
+            model.set 'rooms.home', 
+              arr: arr = [
+                {id:'1', s: '1'}
+                {id:'2', s: '2'}
+                {id:'3', s: '3'}
+                {id:'4', s: '4'}
+                {id:'5', s: '5'}
+              ]
+
+            results = model.ref '_results', model.filter 'rooms.home.arr',
+              limit: 50
+
+            expect(results.get()).to.eql arr
+
+            model.set 'rooms.home', 
+              arr: [
+                {id:'1', s: '1'}
+                {id:'2', s: '2'}
+                {id:'3', s: '3'}
+                {id:'4', s: '4'}
+                {id:'5', s: '5'}
+              ]
+            expect(results.get()).to.eql arr
+
+            model.set 'rooms.home', 
+              arr: biggerArr = [
+                {id:'1', s: '1'}
+                {id:'2', s: '2'}
+                {id:'3', s: '3'}
+                {id:'4', s: '4'}
+                {id:'5', s: '5'}
+                {id:'6', s: '6'}
+              ]
+            expect(results.get()).to.eql biggerArr
+
           it 'a custom filter should remain updated', ->
             model =  new Model
 
