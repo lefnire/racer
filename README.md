@@ -56,6 +56,10 @@ These aren't really changes; anything that listens for change events should have
 If you have custom change listeners with side-effects that Racer will not bundle by default, this may break that.
 
 ##New features
+ - Add `model.connectTo(ioUri)`  
+You can now connect the client to a different Socket.io host without reloading the page.  All racer reconnection logic (including queued transactions made when offline) will work normally.  If the socket is already connected, it will be disconnected first.  
+This is useful in load-balanced scenarios if the current socket server is down or unresponsive.
+
  - Allow pubsub transactions from external sources  
 You can now write a pubsub adapter that raises txn events which originated outside the Racer ecosystem and do not have an associated model version.  
 Racer will now forward any pubsub-received txns with version `-1` to all subscribed clients, regardless of their version.  
