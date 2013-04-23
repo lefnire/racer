@@ -92,7 +92,7 @@ describe 'access control', ->
                   socket.disconnect 'booted'
           teardown = run()
 
-        it 'should work after the page loads', (done) ->
+        it 'should fail after the page loads', (done) ->
           run = setup
             config: (racer, store) ->
               store.accessControl.readPath = true
@@ -183,7 +183,7 @@ describe 'access control', ->
 
           teardown = run()
 
-    describe "forbiddenn Model #{reader} queries", ->
+    describe "forbidden Model #{reader} queries", ->
       describe 'synchronous predicates', ->
       describe 'asynchronous predicates', ->
         it "should fail when #{reader} originates on the server", (done) ->
