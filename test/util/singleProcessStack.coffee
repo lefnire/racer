@@ -4,6 +4,7 @@ connect = require 'connect'
 require '../session/http'
 _url = require 'url'
 async = require 'async'
+cookieableRequest = require './cookieableRequest'
 
 module.exports = (browsers) ->
   ports = [4000...5000]
@@ -47,7 +48,7 @@ module.exports = (browsers) ->
     webServer = http.createServer(app)
     rand = Math.floor(Math.random() * 1000)
     port = ports[rand]
-    webServer.listen port, ->
+    webServer.listen port, "127.0.0.1", ->
       store.listen webServer
 
       store.io.sockets.on 'connection', (socket) ->
@@ -89,8 +90,8 @@ Browser::createTab =  (clientName, port, callback) ->
     # Ensure a unique socket.io connection per tab
     global.io = require 'socket.io-client'
     __connect__ = global.io.connect
-    global.io.connect = (path) ->
-      out = __connect__.call @, "http://127.0.0.1:#{port}" + path
+    global.io.connect = (path, details) ->
+      out = __connect__.call @, "http://127.0.0.1:#{port}" + path, details
       @connect = __connect__
       return out
     ioUtil = global.io.util
@@ -98,8 +99,8 @@ Browser::createTab =  (clientName, port, callback) ->
     # Hack to set cookie for the future handshake request
     __request__ = ioUtil.request
     ioUtil.request = (xdomain) =>
-      xhr = __request__.call ioUtil, xdomain
-      xhr.setRequestHeader 'cookie', "connect.sid=#{@sessionId}"
+      xhr = new cookieableRequest.XMLHttpRequest
+      xhr.setCookie "connect.sid=#{@sessionId}"
       # TODO Comment this out if we're to run tests with reconnects
       ioUtil.request = __request__
       return xhr
@@ -120,6 +121,8 @@ Browser::createTab =  (clientName, port, callback) ->
         # socketConnect()
       changeEnvTo 'server'
       callback null, new Tab(browser, clientName, browserModel)
+    browserRacer.once 'canConnect', (canConnect) ->
+      callback "Fatal connection error" unless canConnect
     browserRacer.init bundle
 
 

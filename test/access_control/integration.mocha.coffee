@@ -13,7 +13,9 @@ describe 'access control', ->
         it "should work when #{reader} originates on the server", (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.readPathAccess 'users.*.ssn', (userId, allow) ->
                 return allow(-1 != @session.roles.indexOf 'superadmin')
             browserA:
@@ -24,7 +26,7 @@ describe 'access control', ->
                     req.session.roles = ['superadmin']
                     serverModel[reader] 'users.1.ssn', (err, basicUsers) ->
                       expect(err).to.be.null()
-                      bundleModel serverModel
+                      process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                   expect(model.get('users.1.ssn')).to.equal 'xxx'
                 onSocketCxn: (socket) ->
@@ -37,7 +39,9 @@ describe 'access control', ->
         it 'should work after the page loads', (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.readPathAccess 'users.*.ssn', (userId, allow) ->
                 return allow(-1 != @session.roles.indexOf 'superadmin')
             browserA:
@@ -46,7 +50,7 @@ describe 'access control', ->
                   store.set 'users.1.ssn', 'xxx', null, (err) ->
                     expect(err).to.be.null()
                     req.session.roles = ['superadmin']
-                    bundleModel serverModel
+                    process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                 onSocketCxn: (socket, tab) ->
                   model = tab.model
@@ -65,7 +69,9 @@ describe 'access control', ->
         it 'should fail on the first page load', (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.readPathAccess 'users.*.ssn', (userId, allow) ->
                 return allow(-1 != @session.roles.indexOf 'superadmin')
             browserA:
@@ -76,8 +82,8 @@ describe 'access control', ->
                     req.session.roles = ['guest']
                     serverModel[reader] 'users.1.ssn', (err, basicUsers) ->
                       expect(err).to.not.be.null()
-                      expect(err).to.equal '403 Unauthorized'
-                      bundleModel serverModel
+                      expect(err.message || err).to.equal '403 Unauthorized'
+                      process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                   expect(model.get('users.1.ssn')).to.eql undefined
                 onSocketCxn: (socket) ->
@@ -86,10 +92,12 @@ describe 'access control', ->
                   socket.disconnect 'booted'
           teardown = run()
 
-        it 'should work after the page loads', (done) ->
+        it 'should fail after the page loads', (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.readPathAccess 'users.*.ssn', (userId, allow) ->
                 return allow(-1 != @session.roles.indexOf 'superadmin')
             browserA:
@@ -98,13 +106,13 @@ describe 'access control', ->
                   store.set 'users.1.ssn', 'xxx', null, (err) ->
                     expect(err).to.be.null()
                     req.session.roles = ['guest']
-                    bundleModel serverModel
+                    process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                 onSocketCxn: (socket, tab) ->
                   model = tab.model
                   model.on 'connect', ->
                     model[reader] 'users.1.ssn', (err, scopedModel) ->
-                      expect(err).to.equal '403 Unauthorized'
+                      expect(err.message || err).to.equal '403 Unauthorized'
                       expect(scopedModel).to.eql undefined
                       socket.on 'disconnect', ->
                         teardown done
@@ -118,7 +126,9 @@ describe 'access control', ->
         it "should work when #{reader} originates on the server", (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.query.expose 'users', 'withRole', (role) ->
                 return @where('roles').contains([role])
               store.queryAccess 'users', 'withRole', (role, allow) ->
@@ -132,7 +142,7 @@ describe 'access control', ->
                     query = serverModel.query('users').withRole('superadmin')
                     serverModel[reader] query, (err, basicUsers) ->
                       expect(err).to.be.null()
-                      bundleModel serverModel
+                      process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                   expect(model.get('users.1')).to.eql id: '1', roles: ['superadmin']
                 onSocketCxn: (socket) ->
@@ -145,7 +155,9 @@ describe 'access control', ->
         it "should work when #{reader} originates on the client", (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.query.expose 'users', 'withRole', (role) ->
                 return @where('roles').contains([role])
               store.queryAccess 'users', 'withRole', (role, allow) ->
@@ -156,7 +168,7 @@ describe 'access control', ->
                   store.set 'users.1', {id: '1', roles: ['superadmin']}, null, (err) ->
                     expect(err).to.be.null()
                     req.session.roles = ['superadmin']
-                    bundleModel serverModel
+                    process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                 onSocketCxn: (socket, tab) ->
                   model = tab.model
@@ -171,13 +183,15 @@ describe 'access control', ->
 
           teardown = run()
 
-    describe "forbiddenn Model #{reader} queries", ->
+    describe "forbidden Model #{reader} queries", ->
       describe 'synchronous predicates', ->
       describe 'asynchronous predicates', ->
         it "should fail when #{reader} originates on the server", (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.query.expose 'users', 'withRole', (role) ->
                 return @where('roles').contains([role])
               store.queryAccess 'users', 'withRole', (role, allow) ->
@@ -190,8 +204,8 @@ describe 'access control', ->
                     req.session.roles = ['guest']
                     query = serverModel.query('users').withRole('superadmin')
                     serverModel[reader] query, (err, basicUsers) ->
-                      expect(err).to.equal '403 Unauthorized'
-                      bundleModel serverModel
+                      expect(err.message || err).to.equal '403 Unauthorized'
+                      process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                   expect(model.get('users.1')).to.eql undefined
                 onSocketCxn: (socket) ->
@@ -204,7 +218,9 @@ describe 'access control', ->
         it "should fail when #{reader} originates on the client", (done) ->
           run = setup
             config: (racer, store) ->
-              store.accessControl = true
+              store.accessControl.readPath = true
+              store.accessControl.query = true
+              store.accessControl.write = true
               store.query.expose 'users', 'withRole', (role) ->
                 return @where('roles').contains([role])
               store.queryAccess 'users', 'withRole', (role, allow) ->
@@ -215,7 +231,7 @@ describe 'access control', ->
                   store.set 'users.1', {id: '1', roles: ['superadmin']}, null, (err) ->
                     expect(err).to.be.null()
                     req.session.roles = ['guest']
-                    bundleModel serverModel
+                    process.nextTick () => bundleModel serverModel
                 browser: (model) ->
                   expect(model.get('users.1')).to.eql undefined
                 onSocketCxn: (socket, tab) ->
@@ -223,7 +239,7 @@ describe 'access control', ->
                   model.on 'connect', ->
                     query = model.query('users').withRole('superadmin')
                     model[reader] query, (err, users) ->
-                      expect(err).to.equal '403 Unauthorized'
+                      expect(err.message || err).to.equal '403 Unauthorized'
                       expect(model.get('users.1')).to.eql undefined
                       socket.on 'disconnect', ->
                         teardown done
@@ -239,7 +255,9 @@ describe 'access control', ->
     it 'should work when the transaction originates on the server', (done) ->
       run = setup
         config: (racer, store) ->
-          store.accessControl = true
+          store.accessControl.readPath = true
+          store.accessControl.query = true
+          store.accessControl.write = true
           store.writeAccess 'set', 'users.*.role', (userId, role, allow) ->
             return allow(-1 != @session.roles.indexOf 'superadmin')
         browserA:
@@ -248,7 +266,7 @@ describe 'access control', ->
               req.session.roles = ['superadmin']
               serverModel.set 'users.1.role', 'guest', (err) ->
                 expect(err).to.be.null()
-                bundleModel serverModel
+                process.nextTick () => bundleModel serverModel
             browser: (model) ->
             onSocketCxn: (socket) ->
               socket.on 'disconnect', ->
@@ -259,7 +277,9 @@ describe 'access control', ->
     it 'should work when the transaction originates on the client', (done) ->
       run = setup
         config: (racer, store) ->
-          store.accessControl = true
+          store.accessControl.readPath = true
+          store.accessControl.query = true
+          store.accessControl.write = true
           store.writeAccess 'set', 'users.*.role', (userId, role, allow) ->
             return allow(-1 != @session.roles.indexOf 'superadmin')
         browserA:
@@ -282,7 +302,9 @@ describe 'access control', ->
     it 'should work when the transaction originates on the server', (done) ->
       run = setup
         config: (racer, store) ->
-          store.accessControl = true
+          store.accessControl.readPath = true
+          store.accessControl.query = true
+          store.accessControl.write = true
           store.writeAccess 'set', 'users.*.role', (userId, role, allow) ->
             return allow(-1 != @session.roles.indexOf 'superadmin')
         browserA:
@@ -290,9 +312,9 @@ describe 'access control', ->
             server: (req, serverModel, bundleModel, store) ->
               req.session.roles = ['guest']
               serverModel.set 'users.1.role', 'guest', (err) ->
-                expect(err).to.equal '403 Unauthorized'
+                expect(err.message || err).to.equal '403 Unauthorized'
                 expect(serverModel.get('users.1.role')).to.eql undefined
-                bundleModel serverModel
+                process.nextTick () => bundleModel serverModel
             browser: (model) ->
             onSocketCxn: (socket) ->
               socket.on 'disconnect', ->
@@ -303,7 +325,9 @@ describe 'access control', ->
     it 'should work when the transaction originates on the client', (done) ->
       run = setup
         config: (racer, store) ->
-          store.accessControl = true
+          store.accessControl.readPath = true
+          store.accessControl.query = true
+          store.accessControl.write = true
           store.writeAccess 'set', 'users.*.role', (userId, role, allow) ->
             return allow(-1 != @session.roles.indexOf 'superadmin')
         browserA:
@@ -316,7 +340,7 @@ describe 'access control', ->
               model = tab.model
               model.on 'connect', ->
                 model.set 'users.1.role', 'guest', (err) ->
-                  expect(err).to.equal '403 Unauthorized'
+                  expect(err.message || err).to.equal '403 Unauthorized'
                   expect(model.get('users.1.role')).to.eql undefined
                   socket.on 'disconnect', ->
                     teardown done
