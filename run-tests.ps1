@@ -1,1 +1,0 @@
-node node_modules/mocha/bin/mocha -R min $(ls test/*.mocha.coffee -s | Select -ExpandProperty FullName) -join ' '
