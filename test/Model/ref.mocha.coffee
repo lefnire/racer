@@ -130,6 +130,16 @@ describe 'Model.ref', ->
         id: 'green'
         hex: '#0f0'
 
+    model.set '_selected', undefined
+    expect(model.get '_color').to.equal undefined
+    expect(model.get '_color.hex').to.equal undefined
+
+    model.set '_color.hex', '#ff0'
+    expect(model.get 'colors').to.specEql
+      green:
+        id: 'green'
+        hex: '#0f0'
+
   it 'should support getting nested references', ->
     model = new Model
     model.set 'users.1', 'brian'
