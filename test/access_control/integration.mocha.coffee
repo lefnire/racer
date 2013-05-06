@@ -430,6 +430,26 @@ describe 'access control', ->
                 teardown done
               socket.disconnect 'booted'
       teardown = run()
+    it 'should throw when the transaction has no callback', (done) ->
+      run = setup
+        config: (racer, store) ->
+          store.accessControl.readPath = true
+          store.accessControl.query = true
+          store.accessControl.write = true
+          store.writeAccess 'set', 'users.*.role', (userId, role, allow) ->
+            return allow(-1 != @session.roles.indexOf 'superadmin')
+        browserA:
+          tabA:
+            server: (req, serverModel, bundleModel, store) ->
+              req.session.roles = ['guest']
+              expect(serverModel.set.bind serverModel, 'users.1.role', 'guest').to.throwError /^403 Unauthorized$/
+              process.nextTick () => bundleModel serverModel
+            browser: (model) ->
+            onSocketCxn: (socket) ->
+              socket.on 'disconnect', ->
+                teardown done
+              socket.disconnect 'booted'
+      teardown = run()
 
     it 'should fail when the transaction originates on the client', (done) ->
       run = setup
@@ -471,6 +491,24 @@ describe 'access control', ->
                 expect(err.message || err).to.match /^403 Unauthorized: No access control declared/
                 expect(serverModel.get('users.1.role')).to.eql undefined
                 process.nextTick () => bundleModel serverModel
+            browser: (model) ->
+            onSocketCxn: (socket) ->
+              socket.on 'disconnect', ->
+                teardown done
+              socket.disconnect 'booted'
+      teardown = run()
+    it 'should throw when the transaction has no callback', (done) ->
+      run = setup
+        config: (racer, store) ->
+          store.accessControl.readPath = true
+          store.accessControl.query = true
+          store.accessControl.write = true
+        browserA:
+          tabA:
+            server: (req, serverModel, bundleModel, store) ->
+              req.session.roles = ['guest']
+              expect(serverModel.set.bind serverModel, 'users.1.role', 'guest').to.throwError /^403 Unauthorized: No access control declared/
+              process.nextTick () => bundleModel serverModel
             browser: (model) ->
             onSocketCxn: (socket) ->
               socket.on 'disconnect', ->
