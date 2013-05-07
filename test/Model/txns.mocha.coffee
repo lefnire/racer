@@ -121,11 +121,14 @@ describe 'Model transaction handling', ->
         # Send all other pub sub messages
         __emit__.call @, name, args...
 
-      serverSocketA.listeners('fetch:snapshot').unshift ->
+      serverSocketA.on 'fetch:snapshot', ->
         expect(modelA.get '_test.color').to.eql 'red'
         modelA.on 'reInit', ->
           expect(modelA.get '_test.color').to.eql 'yellow'
           done()
+
+      # Ugly ugly hack; listeners() returns a copy in 0.10
+      serverSocketA._events['fetch:snapshot'].reverse() 
 
       modelB.set '_test.color', 'red'
       modelB.set '_test.color', 'orange'
