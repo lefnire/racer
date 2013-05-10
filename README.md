@@ -112,6 +112,12 @@ Keys in refLists can now contain `.` characters to traverse object paths.
 
 
 ##Bug fixes
+ - Failed model writes without callbacks will now throw the original exception.  
+Note that asynchronous failed server-side model sets without a callback will throw an exception that terminates the process.  
+This happens in stock racer too, but my fork will throw the correct exception.  
+You should always pass a callback to server-side mutator methods if they might fail.
+
+
  - If you overwrite an object that contains an array used by a query, the query will now update.
 
  - Don't crash if certain callbacks are missing  
