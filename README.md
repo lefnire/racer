@@ -3,7 +3,6 @@
 This is a fork of [codeparty/racer](https://github.com/codeparty/racer) maintained by [SLaks](http://slaks.net) to add features and bugfixes.
 
  > Racer is a real-time model synchronization engine for Node.js. It enables multiple users to interact with the same data objects via sophisticated conflict detection and resolution algorithms. At the same time, it provides a simple object accessor and event interface for writing application logic.
-
 Racer does not have documentation.  For basic information, see the stock Derby documentation at http://derbyjs.com/#models
 
 Issues and pull requests welcome.  
@@ -12,6 +11,10 @@ For support, see the [Google Group](https://groups.google.com/forum/?fromgroups#
 
 [![Build
 Status](https://secure.travis-ci.org/SLaks/racer.png)](http://travis-ci.org/SLaks/racer)
+
+## Note
+
+Racer is alpha software. It is **currently undergoing a full rewrite on codeparty's [0.5 branch](https://github.com/codeparty/racer/tree/0.5)**. The new version will support a similar feature set and API, but many specifics are changing.
 
 ##Fork Usage
 
