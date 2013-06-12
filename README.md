@@ -59,6 +59,14 @@ These aren't really changes; anything that listens for change events should have
 If you have custom change listeners with side-effects that Racer will not bundle by default, this may break that.
 
 ##New features
+ - Allow custom dependencies for `model.filter(function)`  
+You can now write filter functions that depend on other model paths:
+```js
+var builder = model.filter("users", function (user, index, model) { return user.name.indexOf(model.get("_userSearch")) >= 0; });
+builder.dependencies.push("_userSearch");
+```  
+The query will be re-evaluated whenever `_userSearch` changes.
+
  - Add `model.connectTo(ioUri)`  
 You can now connect the client to a different Socket.io host without reloading the page.  All racer reconnection logic (including queued transactions made when offline) will work normally.  If the socket is already connected, it will be disconnected first.  
 This is useful in load-balanced scenarios if the current socket server is down or unresponsive.
